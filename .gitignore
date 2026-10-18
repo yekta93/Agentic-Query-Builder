@@ -60,8 +60,10 @@ dmypy.json
 # Ruff / formatting
 .ruff_cache/
 
-# Project specific
-data/output/
+# Project specific – ignore live runs, keep committed demo samples
+data/output/*
+!data/output/demo_candidate_0/
+!data/output/demo_candidate_0/**
 *.log
 langfuse/
 

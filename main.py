@@ -14,9 +14,6 @@ from src.state import State
 from src.config_loader import get_config, reset_config, count_candidates
 from utils.helper import list_demo_suffixes, load_question
 
-# ---------------------------------------------------------------------------
-# Logging
-# ---------------------------------------------------------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -40,36 +37,81 @@ def _to_dict(obj: Any) -> Any:
     return str(obj)
 
 
-def save_result(final_state: Any, suffix_id: int, out_dir: Path) -> None:
-    """Persist the final state of a single run."""
+def g(final_state: Any, key: str, default=None):
+    if isinstance(final_state, dict):
+        return final_state.get(key, default)
+    return getattr(final_state, key, default)
+
+
+def save_structured_results(final_state: Any, suffix_id: int, out_dir: Path) -> None:
+    """
+    Persist results in the same layout as the original project:
+
+        out_dir/
+          metadata.json          (written once per candidate run)
+          syntax_result/result_{id}.json
+          evaluation/evaluation_{id}.json
+          execution_result/execution_result_{id}.json
+          result_{id}.json       (full combined snapshot)
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "syntax_result").mkdir(exist_ok=True)
+    (out_dir / "evaluation").mkdir(exist_ok=True)
+    (out_dir / "execution_result").mkdir(exist_ok=True)
 
-    # Support both dict and State object
-    def g(key: str, default=None):
-        if isinstance(final_state, dict):
-            return final_state.get(key, default)
-        return getattr(final_state, key, default)
-
-    result_data = {
-        "suffix": g("suffix"),
-        "question": g("question"),
-        "pql_query": g("pql_query"),
-        "has_error": g("has_error", False),
-        "error": g("error"),
-        "retry_count": g("retry_count", 0),
-        "syntax_check_result": _to_dict(g("syntax_check_result")),
-        "evaluation_result": _to_dict(g("evaluation_result")),
-        "execution_result": _to_dict(g("execution_result")),
-        "reflection_feedback": g("reflection_feedback"),
+    # --- syntax_result ---
+    syntax_data = {
+        "suffix": g(final_state, "suffix"),
+        "question": g(final_state, "question"),
+        "pql_query": g(final_state, "pql_query"),
+        "syntax_check_result": _to_dict(g(final_state, "syntax_check_result")),
+        "has_error": g(final_state, "has_error", False),
+        "error": g(final_state, "error"),
+        "retry_count": g(final_state, "retry_count", 0),
+        "reflection_feedback": g(final_state, "reflection_feedback"),
     }
+    path = out_dir / "syntax_result" / f"result_{suffix_id}.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(syntax_data, f, indent=2, ensure_ascii=False)
+    logger.info("Saved syntax_result → %s", path)
 
-    out_path = out_dir / f"result_{suffix_id}.json"
-    try:
-        with open(out_path, "w", encoding="utf-8") as f:
-            json.dump(result_data, f, indent=2, ensure_ascii=False)
-        logger.info("Saved result → %s", out_path)
-    except Exception as e:
-        logger.error("Failed to save result: %s", e)
+    # --- evaluation ---
+    evaluation = _to_dict(g(final_state, "evaluation_result"))
+    if evaluation is not None:
+        path = out_dir / "evaluation" / f"evaluation_{suffix_id}.json"
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(evaluation, f, indent=2, ensure_ascii=False)
+        logger.info("Saved evaluation → %s", path)
+
+    # --- execution_result ---
+    execution = _to_dict(g(final_state, "execution_result"))
+    exec_data = {
+        "suffix": g(final_state, "suffix"),
+        "pql_query": g(final_state, "pql_query"),
+        "execution_result": execution,
+    }
+    path = out_dir / "execution_result" / f"execution_result_{suffix_id}.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(exec_data, f, indent=2, ensure_ascii=False)
+    logger.info("Saved execution_result → %s", path)
+
+    # --- combined snapshot ---
+    combined = {
+        "suffix": g(final_state, "suffix"),
+        "question": g(final_state, "question"),
+        "pql_query": g(final_state, "pql_query"),
+        "has_error": g(final_state, "has_error", False),
+        "error": g(final_state, "error"),
+        "retry_count": g(final_state, "retry_count", 0),
+        "syntax_check_result": _to_dict(g(final_state, "syntax_check_result")),
+        "evaluation_result": evaluation,
+        "execution_result": execution,
+        "reflection_feedback": g(final_state, "reflection_feedback"),
+    }
+    path = out_dir / f"result_{suffix_id}.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(combined, f, indent=2, ensure_ascii=False)
+    logger.info("Saved combined result → %s", path)
 
 
 async def process_single(graph, suffix: int, out_dir: Path) -> None:
@@ -80,7 +122,7 @@ async def process_single(graph, suffix: int, out_dir: Path) -> None:
     initial_state = State(suffix=suffix, question=question, pql_query="")
     final_state = await graph.ainvoke(initial_state)
 
-    save_result(final_state, suffix, out_dir)
+    save_structured_results(final_state, suffix, out_dir)
 
 
 async def run_for_candidate(args: argparse.Namespace, candidate_index: int) -> None:
@@ -92,12 +134,30 @@ async def run_for_candidate(args: argparse.Namespace, candidate_index: int) -> N
     out_path = OUTPUT_DIR / f"{run_ts}_candidate_{candidate_index}"
     out_path.mkdir(parents=True, exist_ok=True)
 
+    # Save metadata once per candidate run
+    metadata = {
+        "candidate_index": candidate_index,
+        "model": config.graph_features.model,
+        "prompt_config": {
+            "few_shots": config.graph_features.prompt_config.few_shots,
+            "cim": config.graph_features.prompt_config.cim,
+        },
+        "reflect": config.graph_features.reflect,
+        "syntax_checker": config.graph_features.syntax_checker,
+        "translate": config.graph_features.translate,
+    }
+    with open(out_path / "metadata.json", "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2, ensure_ascii=False)
+    logger.info("[Candidate %d] Saved metadata.json", candidate_index)
+
     logger.info("[Candidate %d] Model: %s", candidate_index, config.graph_features.model)
-    logger.info("[Candidate %d] few_shots=%s, syntax_checker=%s, reflect=%s",
-                candidate_index,
-                config.graph_features.prompt_config.few_shots,
-                config.graph_features.syntax_checker,
-                config.graph_features.reflect)
+    logger.info(
+        "[Candidate %d] few_shots=%s, syntax_checker=%s, reflect=%s",
+        candidate_index,
+        config.graph_features.prompt_config.few_shots,
+        config.graph_features.syntax_checker,
+        config.graph_features.reflect,
+    )
     logger.info("[Candidate %d] Output → %s", candidate_index, out_path)
 
     graph = await build_graph()
@@ -105,7 +165,7 @@ async def run_for_candidate(args: argparse.Namespace, candidate_index: int) -> N
     if args.suffix.strip().lower() == "all":
         suffixes = list_demo_suffixes()
         if not suffixes:
-            suffixes = list(range(1, 6))
+            suffixes = list(range(1, 11))
     else:
         suffixes = [int(s.strip()) for s in args.suffix.split(",") if s.strip()]
 
@@ -113,8 +173,9 @@ async def run_for_candidate(args: argparse.Namespace, candidate_index: int) -> N
         try:
             await process_single(graph, suffix, out_path)
         except Exception as e:
-            logger.error("[Candidate %d] Failed on suffix %s: %s",
-                         candidate_index, suffix, e)
+            logger.error(
+                "[Candidate %d] Failed on suffix %s: %s", candidate_index, suffix, e
+            )
 
 
 async def main() -> None:
@@ -122,25 +183,29 @@ async def main() -> None:
         description="Agentic Query Builder – SIEM Log Analytics Query Language (SLAQL)"
     )
     parser.add_argument(
-        "--suffix", "-s",
+        "--suffix",
+        "-s",
         type=str,
         default="1",
         help="Example ID(s) to process (comma-separated) or 'all' (default: 1)",
     )
     parser.add_argument(
-        "--config", "-c",
+        "--config",
+        "-c",
         type=str,
         default="config.yaml",
         help="Path to configuration file",
     )
     parser.add_argument(
-        "--candidate-index", "-ci",
+        "--candidate-index",
+        "-ci",
         type=int,
         default=0,
         help="Which candidate from config.yaml to use (default: 0)",
     )
     parser.add_argument(
-        "--all", "-a",
+        "--all",
+        "-a",
         action="store_true",
         help="Run every candidate defined in the config file",
     )
