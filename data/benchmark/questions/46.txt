@@ -1,0 +1,1 @@
+Analyze non-system powershell.exe activity in the last 24 hours, grouped by user

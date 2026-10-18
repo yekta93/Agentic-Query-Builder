@@ -1,0 +1,4 @@
+from last 24h
+| where event_type == "login" and severity == "high"
+| stats count() by user, source_ip
+| sort count desc

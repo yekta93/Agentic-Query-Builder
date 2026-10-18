@@ -1,0 +1,4 @@
+from last 24h
+| where action == "blocked" and rule_name == "4672"
+| stats count() by user, source_ip, dest_ip
+| sort count desc

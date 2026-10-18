@@ -1,0 +1,4 @@
+from last 24h
+| stats count_distinct(rule_name) by hostname
+| where count_distinct > 5
+| sort count_distinct desc

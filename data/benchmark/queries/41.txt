@@ -1,0 +1,5 @@
+from last 24h
+| where rule_name == "4625"
+| stats count() by source_ip, dest_ip, user
+| where count > 10
+| sort count desc

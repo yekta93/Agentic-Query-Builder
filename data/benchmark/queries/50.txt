@@ -1,0 +1,4 @@
+from last 24h
+| where event_type == "malware"
+| stats count() by hostname, process
+| sort count desc

@@ -1,0 +1,5 @@
+from last 24h
+| where dest_port == 53
+| stats count(), sum(bytes_out) by source_ip, dest_ip, hostname
+| where count > 1000 or sum > 50000
+| sort count desc

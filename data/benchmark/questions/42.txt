@@ -1,0 +1,1 @@
+Analyze privileged events (rule 4672) in the last 24 hours, grouped by user, source_ip, dest_ip

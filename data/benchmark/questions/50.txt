@@ -1,0 +1,1 @@
+Analyze malware-related events in the last 24 hours, grouped by hostname and process
