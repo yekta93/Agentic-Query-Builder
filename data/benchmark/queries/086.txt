@@ -1,0 +1,3 @@
+from last 24h
+| stats count() by rule_name
+| sort count asc

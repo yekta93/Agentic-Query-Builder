@@ -1,0 +1,4 @@
+from last 24h
+| stats count_distinct(event_type) by hostname
+| where count_distinct > 3
+| sort count_distinct desc

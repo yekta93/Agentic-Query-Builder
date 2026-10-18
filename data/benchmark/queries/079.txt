@@ -1,0 +1,4 @@
+from last 24h
+| stats count() by rule_name
+| where count > 100
+| sort count desc

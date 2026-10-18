@@ -1,0 +1,1 @@
+Analyze after-hours activity by user and process in the last 24 hours

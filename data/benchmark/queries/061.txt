@@ -1,0 +1,4 @@
+from last 24h
+| where event_type == "login"
+| stats count() by user, process
+| sort count desc

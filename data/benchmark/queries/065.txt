@@ -1,0 +1,3 @@
+from last 24h
+| stats count() by user, process, dest_ip
+| sort count desc

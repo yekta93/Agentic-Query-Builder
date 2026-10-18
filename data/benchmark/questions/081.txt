@@ -1,0 +1,1 @@
+Count events by destination IP and rule name in the last 24 hours

@@ -1,0 +1,1 @@
+List the 10 rule names with the lowest event counts in the last 24 hours

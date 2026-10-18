@@ -1,0 +1,1 @@
+Count events by event_type and process in the last 24 hours

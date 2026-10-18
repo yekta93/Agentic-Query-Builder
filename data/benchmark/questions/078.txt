@@ -1,0 +1,1 @@
+Find destination IPs with more than 15 distinct rule names in the last 24 hours
