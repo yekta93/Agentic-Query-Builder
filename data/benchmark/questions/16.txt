@@ -1,0 +1,1 @@
+Analyze login/authentication events over the last 24 hours, filtered by action == "blocked", grouped by source_ip, sorted by the main metric

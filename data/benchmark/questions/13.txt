@@ -1,0 +1,1 @@
+Analyze security log events over the last 24 hours, filtered by action == "blocked", grouped by source_ip,user, sorted by the main metric

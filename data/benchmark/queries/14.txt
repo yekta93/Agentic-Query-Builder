@@ -1,0 +1,4 @@
+from last 24h
+| where process like "*.exe" or process like "*.dll"
+| stats count() by process, hostname, user
+| sort count desc

@@ -1,0 +1,5 @@
+from last 24h
+| where action == "blocked" and user != "root" and user != "admin"
+| stats count() by user, source_ip
+| where count >= 5
+| sort count desc

@@ -1,0 +1,1 @@
+Analyze login/authentication events over the last 24 hours, filtered by rule_name == "4672", grouped by user, sorted by the main metric

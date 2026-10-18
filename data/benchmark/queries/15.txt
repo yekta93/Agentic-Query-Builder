@@ -1,0 +1,5 @@
+from last 24h
+| where action == "POST"
+| stats count() by user
+| where count > 100
+| sort count desc

@@ -1,0 +1,5 @@
+from last 24h
+| where dest_port == 445
+| stats count() by source_ip, dest_ip
+| where count >= 5
+| sort count desc

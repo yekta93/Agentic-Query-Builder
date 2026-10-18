@@ -1,0 +1,1 @@
+Analyze security log events over the last 24 hours, filtered by action == "POST", grouped by user, keeping groups where count>100, sorted by the main metric
