@@ -2,6 +2,7 @@
 
 import argparse
 import asyncio
+import json
 import logging
 import sys
 from datetime import datetime
@@ -11,6 +12,7 @@ from typing import Any
 from src.graph import build_graph
 from src.state import State
 from src.config_loader import get_config, reset_config, count_candidates
+from utils.helper import list_demo_suffixes, load_question
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -25,24 +27,44 @@ logger = logging.getLogger(__name__)
 OUTPUT_DIR = Path("data/output")
 
 
+def _to_dict(obj: Any) -> Any:
+    """Best-effort conversion of state / pydantic objects to plain dict."""
+    if obj is None:
+        return None
+    if hasattr(obj, "model_dump"):
+        return obj.model_dump()
+    if hasattr(obj, "dict"):
+        return obj.dict()
+    if isinstance(obj, dict):
+        return obj
+    return str(obj)
+
+
 def save_result(final_state: Any, suffix_id: int, out_dir: Path) -> None:
     """Persist the final state of a single run."""
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # Support both dict and State object
+    def g(key: str, default=None):
+        if isinstance(final_state, dict):
+            return final_state.get(key, default)
+        return getattr(final_state, key, default)
+
     result_data = {
-        "suffix": final_state.get("suffix") if isinstance(final_state, dict) else getattr(final_state, "suffix", None),
-        "question": final_state.get("question") if isinstance(final_state, dict) else getattr(final_state, "question", ""),
-        "pql_query": final_state.get("pql_query") if isinstance(final_state, dict) else getattr(final_state, "pql_query", ""),
-        "has_error": final_state.get("has_error") if isinstance(final_state, dict) else getattr(final_state, "has_error", False),
-        "error": final_state.get("error") if isinstance(final_state, dict) else getattr(final_state, "error", None),
-        "retry_count": final_state.get("retry_count") if isinstance(final_state, dict) else getattr(final_state, "retry_count", 0),
-        "evaluation_result": str(final_state.get("evaluation_result") if isinstance(final_state, dict) else getattr(final_state, "evaluation_result", None)),
+        "suffix": g("suffix"),
+        "question": g("question"),
+        "pql_query": g("pql_query"),
+        "has_error": g("has_error", False),
+        "error": g("error"),
+        "retry_count": g("retry_count", 0),
+        "syntax_check_result": _to_dict(g("syntax_check_result")),
+        "evaluation_result": _to_dict(g("evaluation_result")),
+        "execution_result": _to_dict(g("execution_result")),
+        "reflection_feedback": g("reflection_feedback"),
     }
 
     out_path = out_dir / f"result_{suffix_id}.json"
     try:
-        import json
-
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(result_data, f, indent=2, ensure_ascii=False)
         logger.info("Saved result → %s", out_path)
@@ -52,9 +74,10 @@ def save_result(final_state: Any, suffix_id: int, out_dir: Path) -> None:
 
 async def process_single(graph, suffix: int, out_dir: Path) -> None:
     """Run the full pipeline for a single example."""
-    logger.info("Processing example with suffix: %s", suffix)
+    question = load_question(suffix)
+    logger.info("Processing suffix=%s | question=%s", suffix, question[:80])
 
-    initial_state = State(suffix=suffix, pql_query="")
+    initial_state = State(suffix=suffix, question=question, pql_query="")
     final_state = await graph.ainvoke(initial_state)
 
     save_result(final_state, suffix, out_dir)
@@ -70,16 +93,19 @@ async def run_for_candidate(args: argparse.Namespace, candidate_index: int) -> N
     out_path.mkdir(parents=True, exist_ok=True)
 
     logger.info("[Candidate %d] Model: %s", candidate_index, config.graph_features.model)
-    logger.info("[Candidate %d] Output directory: %s", candidate_index, out_path)
+    logger.info("[Candidate %d] few_shots=%s, syntax_checker=%s, reflect=%s",
+                candidate_index,
+                config.graph_features.prompt_config.few_shots,
+                config.graph_features.syntax_checker,
+                config.graph_features.reflect)
+    logger.info("[Candidate %d] Output → %s", candidate_index, out_path)
 
-    # Build the graph with the selected configuration
     graph = await build_graph()
 
-    # Resolve which examples to run
     if args.suffix.strip().lower() == "all":
-        # For the demo we currently support a small fixed set.
-        # Later this will read from data/demo.
-        suffixes = list(range(1, 6))  # placeholder: 5 demo examples
+        suffixes = list_demo_suffixes()
+        if not suffixes:
+            suffixes = list(range(1, 6))
     else:
         suffixes = [int(s.strip()) for s in args.suffix.split(",") if s.strip()]
 
@@ -87,11 +113,14 @@ async def run_for_candidate(args: argparse.Namespace, candidate_index: int) -> N
         try:
             await process_single(graph, suffix, out_path)
         except Exception as e:
-            logger.error("[Candidate %d] Failed on suffix %s: %s", candidate_index, suffix, e)
+            logger.error("[Candidate %d] Failed on suffix %s: %s",
+                         candidate_index, suffix, e)
 
 
 async def main() -> None:
-    parser = argparse.ArgumentParser(description="Agentic Query Builder – SIEM Log Analytics")
+    parser = argparse.ArgumentParser(
+        description="Agentic Query Builder – SIEM Log Analytics Query Language (SLAQL)"
+    )
     parser.add_argument(
         "--suffix", "-s",
         type=str,
