@@ -1,0 +1,10 @@
+{
+  "suffix": 4,
+  "question": "What is the total number of bytes sent by each hostname for malware events in the last 7 days?",
+  "pql_query": "from last 7d\n| where event_type == \"malware\"\n| stats sum(bytes_out) by hostname\n| sort sum desc",
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "reflection_feedback": null
+}

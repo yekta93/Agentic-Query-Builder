@@ -1,0 +1,10 @@
+{
+  "suffix": 3,
+  "question": "List all processes that contain 'powershell' with high or critical severity between June 1 and June 2 2024",
+  "pql_query": "from 2024-06-01 to 2024-06-02\n| where process like \"*powershell*\" and severity in (\"high\", \"critical\")\n| fields timestamp, user, hostname, process, rule_name",
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "reflection_feedback": null
+}

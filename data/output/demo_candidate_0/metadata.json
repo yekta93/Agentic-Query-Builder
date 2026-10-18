@@ -1,0 +1,12 @@
+{
+  "candidate_index": 0,
+  "model": "google/gemma-2-27b-it",
+  "prompt_config": {
+    "few_shots": true,
+    "cim": false
+  },
+  "reflect": true,
+  "syntax_checker": true,
+  "translate": false,
+  "note": "Sample demo-mode outputs (reference queries). Generated for portfolio showcase."
+}

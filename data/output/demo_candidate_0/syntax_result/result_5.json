@@ -1,0 +1,10 @@
+{
+  "suffix": 5,
+  "question": "Show critical firewall events from the last 6 hours where the source IP starts with 10.0",
+  "pql_query": "from last 6h\n| where event_type == \"firewall\" and severity == \"critical\" and source_ip like \"10.0*\"\n| fields timestamp, source_ip, dest_ip, action, rule_name",
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "reflection_feedback": null
+}

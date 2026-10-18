@@ -1,0 +1,10 @@
+{
+  "suffix": 2,
+  "question": "Find blocked connections coming from countries other than Iran in the last hour and show a timeseries by event type",
+  "pql_query": "from last 1h\n| where action == \"blocked\" and country != \"IR\"\n| timeseries count() by event_type",
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "reflection_feedback": null
+}

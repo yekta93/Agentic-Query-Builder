@@ -1,0 +1,10 @@
+{
+  "suffix": 1,
+  "question": "Show me all high severity login events from the last 24 hours grouped by user and source IP",
+  "pql_query": "from last 24h\n| where event_type == \"login\" and severity == \"high\"\n| stats count() by user, source_ip\n| sort count desc",
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "reflection_feedback": null
+}
