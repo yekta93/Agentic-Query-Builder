@@ -1,0 +1,38 @@
+# Agentic Query Builder Configuration
+# All comments in English
+
+candidates:
+  # Candidate 0: Full pipeline (recommended for production-like runs)
+  - model: "google/gemma-2-27b-it"
+    prompt_config: ["few-shots"]
+    syntax_checker: true
+    reflect: true
+    translate: false
+
+  # Candidate 1: No few-shots, with reflection
+  - model: "google/gemma-2-27b-it"
+    prompt_config: []
+    syntax_checker: true
+    reflect: true
+    translate: false
+
+  # Candidate 2: Minimal pipeline (baseline)
+  - model: "google/gemma-2-27b-it"
+    prompt_config: []
+    syntax_checker: false
+    reflect: false
+    translate: false
+
+# Default settings (used when not overridden by candidate)
+defaults:
+  temperature: 0.0
+  max_retries: 3
+  timeout: 60
+
+data:
+  questions_dir: "data/demo/questions"
+  queries_dir: "data/demo/queries"
+  details_dir: "data/demo/details"
+  syntax_guide: "artifacts/slaql_syntax.md"
+  fields_guide: "artifacts/fields.md"
+  output_dir: "data/output"
