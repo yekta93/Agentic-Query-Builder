@@ -1,0 +1,16 @@
+{
+  "file": "q006.slaql",
+  "suffix": 6,
+  "query": "from last 48h\n| where event_type == \"malware\" and severity == \"critical\"\n| stats count() by hostname\n| sort count desc\n| limit 10",
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 13,
+    "execution_time_ms": 162,
+    "sample_rows": [
+      {"hostname": "ws-003", "count": 9},
+      {"hostname": "ws-011", "count": 7},
+      {"hostname": "srv-app-02", "count": 4}
+    ],
+    "note": "Mocked SIEM execution result for demo dataset record."
+  }
+}

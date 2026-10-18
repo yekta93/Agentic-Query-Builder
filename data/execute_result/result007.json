@@ -1,0 +1,14 @@
+{
+  "file": "q007.slaql",
+  "suffix": 7,
+  "query": "from last 12h\n| where event_type == \"firewall\" and action == \"blocked\" and dest_port in (22, 3389)\n| fields timestamp, source_ip, dest_ip, dest_port, rule_name, user",
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 11,
+    "execution_time_ms": 169,
+    "sample_rows": [
+      {"timestamp": "2024-10-18T03:44:12Z", "source_ip": "185.22.11.9", "dest_ip": "10.0.1.50", "dest_port": 22, "rule_name": "SSH-BruteForce", "user": null}
+    ],
+    "note": "Mocked SIEM execution result for demo dataset record."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "file": "q002.slaql",
+  "suffix": 2,
+  "query": "from last 1h\n| where action == \"blocked\" and country != \"IR\"\n| timeseries count() by event_type",
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 13,
+    "execution_time_ms": 134,
+    "sample_rows": [
+      {"event_type": "firewall", "count": 34},
+      {"event_type": "login", "count": 11},
+      {"event_type": "dns", "count": 6}
+    ],
+    "note": "Mocked SIEM execution result for demo dataset record."
+  }
+}

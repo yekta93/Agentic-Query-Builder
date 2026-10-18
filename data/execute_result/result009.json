@@ -1,0 +1,16 @@
+{
+  "file": "q009.slaql",
+  "suffix": 9,
+  "query": "from last 24h\n| where severity in (\"high\", \"critical\")\n| timeseries count() by event_type",
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 13,
+    "execution_time_ms": 183,
+    "sample_rows": [
+      {"event_type": "malware", "count": 41},
+      {"event_type": "firewall", "count": 28},
+      {"event_type": "login", "count": 19}
+    ],
+    "note": "Mocked SIEM execution result for demo dataset record."
+  }
+}

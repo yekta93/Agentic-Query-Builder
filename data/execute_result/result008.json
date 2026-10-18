@@ -1,0 +1,16 @@
+{
+  "file": "q008.slaql",
+  "suffix": 8,
+  "query": "from last 6h\n| where event_type == \"login\" and action == \"blocked\"\n| stats count() by user\n| where count > 5\n| sort count desc",
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 13,
+    "execution_time_ms": 176,
+    "sample_rows": [
+      {"user": "admin", "count": 23},
+      {"user": "root", "count": 14},
+      {"user": "guest", "count": 7}
+    ],
+    "note": "Mocked SIEM execution result for demo dataset record."
+  }
+}
