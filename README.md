@@ -31,34 +31,6 @@ This project was designed as a real-world solution for converting security-analy
 
 *LangGraph multi-agent pipeline: Generate → Syntax Check → Reflect (retry loop) → Judge → Execute*
 
-```text
-                  ┌─────────────┐
-                  │  Translate  │  (optional)
-                  └──────┬──────┘
-                         │
-                  ┌──────▼──────┐
-                  │   Generate  │  ← Few-shot + Schema + Reflection feedback
-                  └──────┬──────┘
-                         │
-               ┌─────────▼─────────┐
-               │  Syntax Checker   │
-               └─────────┬─────────┘
-                    ┌────┴────┐
-                    │ error?  │
-                    ▼         ▼
-              ┌─────────┐  ┌──────┐
-              │ Reflect │  │Judge │
-              └────┬────┘  └──┬───┘
-                   │          │
-                   ▼          │
-              (back to        │
-               Generate)      │
-                              ▼
-                       ┌─────────────┐
-                       │   Execute   │  (mocked in demo)
-                       └─────────────┘
-```
-
 ### Pipeline Stages
 
 | Stage            | Description                                      | Configurable |
