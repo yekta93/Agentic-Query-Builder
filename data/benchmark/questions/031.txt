@@ -1,0 +1,1 @@
+Analyze process events over the last 24 hours for powershell with encoded commands or download strings, grouped by hostname, user, process, query

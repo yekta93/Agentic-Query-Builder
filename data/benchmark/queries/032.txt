@@ -1,0 +1,5 @@
+from last 24h
+| where query like "*'*
+" or query like "*--*" or query like "*;*" or query like "*union*" or query like "*select*"
+| stats count() by source_ip, query, dest_ip
+| sort count desc

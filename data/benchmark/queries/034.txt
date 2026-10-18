@@ -1,0 +1,4 @@
+from last 1h
+| stats count(), count_distinct(source_ip) by dest_ip
+| where count > 1000 or count_distinct > 10
+| sort count desc

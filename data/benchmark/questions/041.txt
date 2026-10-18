@@ -1,0 +1,1 @@
+Analyze failed logons (rule 4625) in the last 24 hours, grouped by source_ip, dest_ip, user, keeping groups with count > 10

@@ -1,0 +1,1 @@
+Analyze blocked events on host eridanus in the last 24 hours, grouped by source_ip and user, keeping groups with count > 10

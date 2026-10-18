@@ -1,0 +1,1 @@
+Analyze events from source IP 10.0.1.100 by destination port in the last 24 hours, keeping groups with count > 100

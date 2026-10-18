@@ -1,0 +1,5 @@
+from last 24h
+| where rule_name == "4624" and action == "allowed"
+| stats count_distinct(dest_ip) by source_ip, user
+| where count_distinct > 3
+| sort count_distinct desc
