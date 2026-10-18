@@ -4,6 +4,12 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 
+class OutputQuery(BaseModel):
+    """Structured output expected from the LLM for query generation."""
+
+    query: str = Field(..., description="The generated SLAQL query")
+
+
 class EvaluationResult(BaseModel):
     """Result produced by the Judge node."""
 
@@ -13,8 +19,10 @@ class EvaluationResult(BaseModel):
     details: Optional[dict[str, Any]] = Field(default=None)
 
 
-class GenerationResult(BaseModel):
-    """Structured output expected from the Generate node."""
+class QueryExample(BaseModel):
+    """A single few-shot example."""
 
-    query: str = Field(..., description="The generated SLAQL query")
-    reasoning: Optional[str] = Field(default=None, description="Optional chain-of-thought")
+    index: int
+    question: str
+    query: str
+    detail: str = ""

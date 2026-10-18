@@ -1,9 +1,11 @@
 """LLM client factory and helpers."""
 
 import os
-from typing import Any, Optional
+from typing import Any, Optional, Type
 
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from pydantic import BaseModel
 
 
 def get_llm(
@@ -27,10 +29,34 @@ def get_llm(
         model=model,
         temperature=temperature,
         timeout=timeout,
-        openai_api_key=api_key,
-        openai_api_base="https://openrouter.ai/api/v1",
+        api_key=api_key,
+        base_url="https://openrouter.ai/api/v1",
         default_headers={
             "HTTP-Referer": "https://github.com/yekta93/Agentic-Query-Builder",
             "X-Title": "Agentic Query Builder",
         },
     )
+
+
+def create_structured_chain(
+    model: str,
+    system_prompt: str,
+    user_prompt: str,
+    output_model: Type[BaseModel],
+    temperature: float = 0.0,
+    timeout: int = 60,
+):
+    """
+    Create a LangChain chain that returns a structured Pydantic object.
+    """
+    llm = get_llm(model=model, temperature=temperature, timeout=timeout)
+    structured_llm = llm.with_structured_output(output_model)
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system_prompt),
+            ("human", user_prompt),
+        ]
+    )
+
+    return prompt | structured_llm
