@@ -1,0 +1,13 @@
+{
+  "suffix": 10,
+  "pql_query": "from last 2h\n| where event_type == \"dns\" and (query like \"*malware*\" or query like \"*phishing*\")\n| fields timestamp, source_ip, query, hostname",
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 11,
+    "execution_time_ms": 190,
+    "sample_rows": [
+      {"timestamp": "2024-10-18T11:02:33Z", "source_ip": "10.0.5.12", "query": "update.malware-cdn.xyz", "hostname": "ws-088"}
+    ],
+    "note": "Mocked execution result for demonstration purposes."
+  }
+}

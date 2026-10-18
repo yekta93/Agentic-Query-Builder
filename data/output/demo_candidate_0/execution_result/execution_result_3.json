@@ -1,0 +1,13 @@
+{
+  "suffix": 3,
+  "pql_query": "from 2024-06-01 to 2024-06-02\n| where process like \"*powershell*\" and severity in (\"high\", \"critical\")\n| fields timestamp, user, hostname, process, rule_name",
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 11,
+    "execution_time_ms": 141,
+    "sample_rows": [
+      {"timestamp": "2024-06-01T14:22:01Z", "user": "svc_admin", "hostname": "ws-042", "process": "powershell.exe", "rule_name": "Suspicious PowerShell"}
+    ],
+    "note": "Mocked execution result for demonstration purposes."
+  }
+}

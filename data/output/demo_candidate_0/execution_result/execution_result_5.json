@@ -1,0 +1,13 @@
+{
+  "suffix": 5,
+  "pql_query": "from last 6h\n| where event_type == \"firewall\" and severity == \"critical\" and source_ip like \"10.0*\"\n| fields timestamp, source_ip, dest_ip, action, rule_name",
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 11,
+    "execution_time_ms": 155,
+    "sample_rows": [
+      {"timestamp": "2024-10-18T08:11:00Z", "source_ip": "10.0.2.15", "dest_ip": "8.8.8.8", "action": "blocked", "rule_name": "Outbound-Deny"}
+    ],
+    "note": "Mocked execution result for demonstration purposes."
+  }
+}

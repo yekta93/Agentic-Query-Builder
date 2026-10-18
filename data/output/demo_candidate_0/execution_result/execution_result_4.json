@@ -1,0 +1,15 @@
+{
+  "suffix": 4,
+  "pql_query": "from last 7d\n| where event_type == \"malware\"\n| stats sum(bytes_out) by hostname\n| sort sum desc",
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 13,
+    "execution_time_ms": 148,
+    "sample_rows": [
+      {"hostname": "srv-db-01", "sum": 15200000},
+      {"hostname": "ws-017", "sum": 8400000},
+      {"hostname": "srv-web-03", "sum": 2100000}
+    ],
+    "note": "Mocked execution result for demonstration purposes."
+  }
+}
