@@ -1,0 +1,1 @@
+Analyze firewall blocked events in the last 24 hours, grouped by country and source_ip

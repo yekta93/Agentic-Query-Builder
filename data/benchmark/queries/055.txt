@@ -1,0 +1,4 @@
+from last 24h
+| stats sum(bytes_out) by source_ip
+| where sum > 100
+| sort sum desc

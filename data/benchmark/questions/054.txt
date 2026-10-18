@@ -1,0 +1,1 @@
+Analyze login events with high severity in the last 24 hours, grouped by user and source_ip

@@ -1,0 +1,4 @@
+from last 24h
+| where event_type == "dns"
+| stats count() by query, source_ip
+| sort count desc

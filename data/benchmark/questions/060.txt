@@ -1,0 +1,1 @@
+Count process events by user in the last 24 hours

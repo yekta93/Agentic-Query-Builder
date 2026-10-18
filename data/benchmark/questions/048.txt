@@ -1,0 +1,1 @@
+Analyze DNS-related events in the last 24 hours, grouped by query and source_ip
