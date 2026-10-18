@@ -19,6 +19,7 @@ It demonstrates modern LLM orchestration patterns:
 - **Syntax validation** loop
 - **Self-reflection** + retry for query improvement
 - **LLM-as-Judge** evaluation (with strong heuristic fallback)
+- **Langfuse tracing** for every graph node (optional)
 - Configurable pipeline stages (easy ablation studies)
 
 This project was designed as a real-world solution for converting security-analyst questions into structured SIEM log analysis queries.
@@ -62,6 +63,37 @@ python main.py --suffix all
 ```
 
 When you later add a real key, the same commands switch to live LLM generation automatically.
+
+---
+
+## Observability (Langfuse)
+
+Every LangGraph node can be traced with [Langfuse](https://langfuse.com).
+
+```bash
+# Install optional dependency
+pip install langfuse
+# or
+pip install -e ".[observability]"
+```
+
+Add keys to `.env`:
+
+```bash
+LANGFUSE_PUBLIC_KEY=pk-lf-...
+LANGFUSE_SECRET_KEY=sk-lf-...
+LANGFUSE_HOST=https://cloud.langfuse.com
+```
+
+Then run as usual:
+
+```bash
+python main.py --suffix 1
+```
+
+Each `(candidate, suffix)` becomes one **session** in Langfuse. Inside the trace you will see spans for `generate`, `syntax_check`, `reflect`, `judge`, and `execute`, including LLM calls, latency, and errors.
+
+If keys are missing, tracing is disabled automatically — demo mode still works offline.
 
 ---
 
@@ -163,13 +195,16 @@ uv sync
 
 # Or with pip
 pip install -e .
+
+# Optional: Langfuse
+pip install -e ".[observability]"
 ```
 
 ### 2. (Optional) Configure Environment for live LLM
 
 ```bash
 cp .env.example .env
-# Edit .env and set your OPENROUTER_API_KEY
+# Edit .env and set your OPENROUTER_API_KEY (and optionally Langfuse keys)
 ```
 
 ### 3. Run
@@ -220,18 +255,21 @@ candidates:
 ## Project Structure
 
 ```text
-├── main.py                  # CLI entry point
+├── main.py                  # CLI entry point (+ Langfuse config)
 ├── config.yaml              # Pipeline & model configuration
 ├── src/
 │   ├── graph.py             # LangGraph workflow definition
 │   ├── state.py             # Shared state schema
 │   ├── config_loader.py     # Config management
 │   └── query_builder/       # Individual agents
-├── utils/                   # Helpers, LLM clients, schemas
+├── utils/
+│   ├── langfuse_client.py   # Optional Langfuse CallbackHandler
+│   ├── llm_clients.py
+│   ├── helper.py
+│   └── schemas.py
 ├── data/demo/               # 10 synthetic clean examples
-│   ├── questions/
-│   ├── queries/
-│   └── details/
+├── data/output/             # Run outputs (demo_candidate_0 committed)
+├── data/execute_result/     # Mocked execute results for all demos
 ├── artifacts/               # SLAQL syntax & field references
 └── tests/
 ```
@@ -245,9 +283,9 @@ candidates:
 - Few-shot prompting with leave-one-out support
 - Self-reflection that feeds guidance back into generation
 - LLM-as-Judge + robust heuristic fallback
+- **Langfuse observability** for every graph node
 - Fully synthetic demo data (no sensitive information)
 - Works offline out of the box for demos and CI
-
 
 ---
 
