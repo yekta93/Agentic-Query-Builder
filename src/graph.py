@@ -38,7 +38,7 @@ async def build_graph():
 
     Pipeline (stages are config-gated):
 
-        [translate?] → generate → [syntax_check? → [reflect?]↩] → judge → execute → END
+        [translate?] → generate → [syntax_check? → (reflect → generate)* ] → judge → execute → END
     """
     # Import agents here to avoid circular imports at module level
     from src.query_builder.generate import generate_node
@@ -78,12 +78,15 @@ async def build_graph():
         workflow.add_edge("generate", "syntax_check")
 
         if features.reflect:
+            # On error → reflect → generate (retry loop)
+            # On success → judge
             workflow.add_conditional_edges(
                 "syntax_check",
                 route_after_syntax_check,
                 {"reflect": "reflect", "judge": "judge"},
             )
-            workflow.add_edge("reflect", "syntax_check")
+            # After reflection, go back to generate so the LLM can use the feedback
+            workflow.add_edge("reflect", "generate")
         else:
             workflow.add_edge("syntax_check", "judge")
     else:
