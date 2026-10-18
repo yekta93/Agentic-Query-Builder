@@ -1,0 +1,5 @@
+from last 24h
+| where transport == "tcp"
+| stats count() by dest_ip
+| where count > 100
+| sort count desc

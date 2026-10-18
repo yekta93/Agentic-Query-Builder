@@ -1,0 +1,4 @@
+from last 24h
+| where process like "*/etc/*" or process like "*/var/*"
+| stats count() by hostname, process, user, action
+| sort count desc

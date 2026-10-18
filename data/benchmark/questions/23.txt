@@ -1,0 +1,1 @@
+Analyze security log events over the last 24 hours, filtered by dest_port == 80, grouped by source_ip, keeping groups where count > 50, sorted by the main metric

@@ -1,0 +1,5 @@
+from last 24h
+| where action == "success"
+| stats count() by user
+| where count > 10
+| sort count desc

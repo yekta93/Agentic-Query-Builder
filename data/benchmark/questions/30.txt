@@ -1,0 +1,1 @@
+Analyze network connections by port over the last 24 hours, filtered by dest_port not in common admin ports, grouped by source_ip,dest_port, keeping groups where count > 20, sorted by the main metric

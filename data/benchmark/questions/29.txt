@@ -1,0 +1,1 @@
+Analyze security log events over the last 24 hours, filtered by process path containing /etc/ or /var/, grouped by hostname, process, user, action, sorted by the main metric

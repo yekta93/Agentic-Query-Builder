@@ -1,0 +1,1 @@
+Analyze network connections by port over the last 24 hours, filtered by dest_port in (22, 3389, 1433, 3306, 8080), grouped by source_ip, dest_port, keeping groups where count > 10, sorted by the main metric

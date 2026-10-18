@@ -1,0 +1,1 @@
+Analyze security log events over the last 24 hours, filtered by dest_ip == "10.0.1.120", grouped by source_ip, keeping groups where count>10, sorted by the main metric

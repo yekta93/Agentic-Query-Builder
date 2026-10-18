@@ -1,0 +1,1 @@
+Analyze login/authentication events over the last 24 hours, filtered by action == "success", grouped by user, keeping groups where count > 10, sorted by the main metric
