@@ -1,0 +1,4 @@
+from last 24h
+| stats count_distinct(action) by hostname
+| where count_distinct > 6
+| sort count_distinct desc

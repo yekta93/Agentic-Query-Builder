@@ -6,12 +6,14 @@
 
 ```text
 data/benchmark/
-├── questions/          # 1.txt … 104.txt  (English questions)
-├── queries/            # 1.txt … 104.txt  (reference SLAQL)
+├── questions/          # 001.txt … 104.txt  (English questions)
+├── queries/            # 001.txt … 104.txt  (reference SLAQL)
 ├── Dataset_slaql_v1.tsv
 ├── Dataset_slaql_v1.csv
 └── README.md
 ```
+
+File names are **zero-padded** three digits: `001`, `002`, …, `104`.
 
 Rebuild the table files after any edit:
 
@@ -23,11 +25,13 @@ python scripts/combine_benchmark.py
 
 | Asset | Count |
 |-------|------|
-| Question files | **104** |
-| Query files | **104** |
+| Question files (`001`–`104`) | **104** |
+| Query files (`001`–`104`) | **104** |
 
 ## Source
 
 Adapted from a curated 104-query SOC analyst set and rewritten into public **SLAQL** syntax (`artifacts/slaql_syntax.md`).
 
-Evaluation study (model × configuration accuracy/cost): see `docs/evaluation.md`.
+Evaluation study: `docs/evaluation.md`.
+
+> Note: legacy unpadded files (`1.txt`, `2.txt`, …) may still exist from an earlier commit; only `001.txt`–`104.txt` are canonical.

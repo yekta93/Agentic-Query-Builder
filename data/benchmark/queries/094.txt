@@ -1,0 +1,3 @@
+from last 24h
+| stats count_distinct(rule_name) by dest_ip, action
+| where count_distinct > 5
