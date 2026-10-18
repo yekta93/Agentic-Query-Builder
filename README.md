@@ -27,6 +27,10 @@ This project was designed as a real-world solution for converting security-analy
 
 ## Architecture
 
+![LangGraph Architecture](docs/graph.png)
+
+*LangGraph multi-agent pipeline: Generate → Syntax Check → Reflect (retry) → Judge → Execute*
+
 ```text
                   ┌─────────────┐
                   │  Translate  │  (optional)
@@ -256,6 +260,8 @@ candidates:
 │   ├── questions/
 │   ├── queries/
 │   └── details/
+├── docs/
+│   └── graph.png            # Architecture diagram
 ├── artifacts/               # SLAQL syntax & field references
 └── tests/
 ```
