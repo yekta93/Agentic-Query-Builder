@@ -1,0 +1,1 @@
+List all DNS queries from the last 2 hours that contain the word 'malware' or 'phishing' in the query field

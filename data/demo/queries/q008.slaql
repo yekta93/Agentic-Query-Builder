@@ -1,0 +1,5 @@
+from last 6h
+| where event_type == "login" and action == "blocked"
+| stats count() by user
+| where count > 5
+| sort count desc

@@ -1,0 +1,5 @@
+from last 48h
+| where event_type == "malware" and severity == "critical"
+| stats count() by hostname
+| sort count desc
+| limit 10

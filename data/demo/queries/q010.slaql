@@ -1,0 +1,3 @@
+from last 2h
+| where event_type == "dns" and (query like "*malware*" or query like "*phishing*")
+| fields timestamp, source_ip, query, hostname

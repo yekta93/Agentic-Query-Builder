@@ -1,0 +1,3 @@
+from last 12h
+| where event_type == "firewall" and action == "blocked" and dest_port in (22, 3389)
+| fields timestamp, source_ip, dest_ip, dest_port, rule_name, user

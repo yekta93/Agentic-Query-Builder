@@ -1,0 +1,3 @@
+from last 24h
+| where severity in ("high", "critical")
+| timeseries count() by event_type

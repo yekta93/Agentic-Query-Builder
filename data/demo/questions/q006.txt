@@ -1,0 +1,1 @@
+Count the number of critical malware events per hostname in the last 48 hours and show the top 10

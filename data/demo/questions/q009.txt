@@ -1,0 +1,1 @@
+Show a timeseries of high and critical severity events grouped by event_type over the last 24 hours

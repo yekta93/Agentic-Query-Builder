@@ -1,0 +1,1 @@
+Show all blocked firewall events from the last 12 hours where the destination port is 22 or 3389
