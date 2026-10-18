@@ -1,0 +1,1 @@
+Analyze account management events in the last 24 hours, grouped by user and process

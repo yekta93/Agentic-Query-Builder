@@ -1,0 +1,5 @@
+from last 24h
+| where dest_port == 80 or dest_port == 443
+| stats sum(bytes_out) by source_ip, dest_ip, dest_port
+| where sum > 5242880
+| sort sum desc

@@ -1,0 +1,4 @@
+from last 24h
+| where process == "schtasks.exe"
+| stats count() by user, hostname
+| sort count desc

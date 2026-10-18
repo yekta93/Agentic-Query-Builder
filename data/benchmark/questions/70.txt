@@ -1,0 +1,1 @@
+Find hosts with more than 5 distinct rules and more than 100 events in the last 24 hours

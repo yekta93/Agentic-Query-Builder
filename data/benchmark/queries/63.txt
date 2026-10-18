@@ -1,0 +1,3 @@
+from last 24h
+| stats count() by event_type, process
+| sort count desc
