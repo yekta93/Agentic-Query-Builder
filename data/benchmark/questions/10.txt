@@ -1,1 +1,0 @@
-Count authentication attempts for users other than root or empty username, by user, source IP, and destination IP in the last 24 hours
