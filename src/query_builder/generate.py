@@ -55,7 +55,11 @@ def _build_system_prompt(include_few_shots: bool) -> str:
 
 
 def _build_user_prompt() -> str:
-    return "Write an SLAQL query for the following question:\n\n{question}"
+    return (
+        "Write an SLAQL query for the following question:\n\n"
+        "{question}\n\n"
+        "{reflection_section}"
+    )
 
 
 class QueryGenerator:
@@ -87,21 +91,34 @@ class QueryGenerator:
             include_few_shots,
         )
 
-    def generate(self, question: str, exclude_suffix: int | None = None) -> str:
+    def generate(
+        self,
+        question: str,
+        exclude_suffix: int | None = None,
+        reflection_feedback: str | None = None,
+    ) -> str:
         """Generate an SLAQL query for the given question."""
         syntax_guide = load_syntax_guide()
         fields_guide = load_fields_guide()
+
+        if reflection_feedback:
+            reflection_section = (
+                "IMPORTANT – Previous attempt failed. Please follow this feedback:\n"
+                f"{reflection_feedback}\n"
+            )
+        else:
+            reflection_section = ""
 
         inputs: dict[str, Any] = {
             "question": question,
             "syntax_guide": syntax_guide,
             "fields_guide": fields_guide,
+            "reflection_section": reflection_section,
         }
 
         if self.include_few_shots:
             inputs["few_shots"] = load_few_shots(exclude_suffix=exclude_suffix)
         else:
-            # Still provide the key so the template does not break if few_shots was included by mistake
             inputs["few_shots"] = "Few-shot examples are disabled for this run."
 
         logger.info("Calling LLM to generate SLAQL query...")
@@ -113,19 +130,26 @@ class QueryGenerator:
 async def generate_node(state: State) -> dict[str, Any]:
     """
     LangGraph node that generates an SLAQL query from the input question.
+    On retries it also incorporates reflection feedback.
     """
-    logger.info("Generate node started (suffix=%s)", state.suffix)
+    logger.info(
+        "Generate node started (suffix=%s, retry=%s)",
+        state.suffix,
+        state.retry_count,
+    )
 
     try:
-        # Resolve the question
         question = state.question or state.question_en
         if not question:
             question = load_question(state.suffix)
 
         generator = QueryGenerator()
 
-        # Leave-one-out: exclude the current example from few-shots when possible
-        pql_query = generator.generate(question, exclude_suffix=state.suffix)
+        pql_query = generator.generate(
+            question=question,
+            exclude_suffix=state.suffix,
+            reflection_feedback=state.reflection_feedback,
+        )
 
         return {
             "pql_query": pql_query,
