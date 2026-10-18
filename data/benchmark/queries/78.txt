@@ -1,0 +1,4 @@
+from last 24h
+| stats count_distinct(rule_name) by dest_ip
+| where count_distinct > 15
+| sort count_distinct desc

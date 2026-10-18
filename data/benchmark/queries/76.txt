@@ -1,0 +1,4 @@
+from last 24h
+| stats count() by user
+| where count > 20
+| sort count desc

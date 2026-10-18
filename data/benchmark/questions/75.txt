@@ -1,0 +1,1 @@
+Count events by action in the last 24 hours

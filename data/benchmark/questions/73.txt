@@ -1,0 +1,1 @@
+Find hosts with diverse rules, event types in the last 24 hours

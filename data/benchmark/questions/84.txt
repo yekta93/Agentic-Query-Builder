@@ -1,0 +1,1 @@
+Find hosts with more than 3 distinct event types in the last 24 hours
