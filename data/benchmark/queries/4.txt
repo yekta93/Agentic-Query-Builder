@@ -1,0 +1,4 @@
+from last 24h
+| where (process == "lsass.exe" or process == "svchost.exe" or process == "explorer.exe") and user != "unknown"
+| stats count() by user, process
+| sort count desc

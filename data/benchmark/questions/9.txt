@@ -1,0 +1,1 @@
+Count blocked network sessions by user and destination IP in the last 24 hours

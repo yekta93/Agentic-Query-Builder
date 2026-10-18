@@ -1,0 +1,4 @@
+from last 24h
+| where action == "blocked"
+| stats count() by user, dest_ip
+| sort count desc

@@ -1,0 +1,4 @@
+from last 24h
+| where user != "root" and user != ""
+| stats count() by user, source_ip, dest_ip
+| sort count desc

@@ -1,0 +1,4 @@
+from last 24h
+| stats count() by user,source_ip
+| where count > 50
+| sort count desc

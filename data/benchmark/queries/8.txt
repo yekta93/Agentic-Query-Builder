@@ -1,0 +1,4 @@
+from last 24h
+| stats count() by user,dest_ip,dest_port
+| where count > 10
+| sort count desc
