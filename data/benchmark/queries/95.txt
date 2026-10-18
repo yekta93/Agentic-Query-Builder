@@ -1,0 +1,3 @@
+from last 24h
+| stats count() by dest_ip, rule_name
+| sort count desc
