@@ -1,11 +1,16 @@
 """LLM client factory and helpers."""
 
 import os
-from typing import Any, Optional, Type
+from typing import Type
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel
+
+
+def has_api_key() -> bool:
+    """Return True if an OpenRouter (or compatible) API key is available."""
+    return bool(os.getenv("OPENROUTER_API_KEY"))
 
 
 def get_llm(

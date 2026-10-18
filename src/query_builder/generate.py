@@ -10,8 +10,9 @@ from utils.helper import (
     load_few_shots,
     load_syntax_guide,
     load_fields_guide,
+    load_reference_query,
 )
-from utils.llm_clients import create_structured_chain
+from utils.llm_clients import create_structured_chain, has_api_key
 from utils.schemas import OutputQuery
 
 logger = logging.getLogger(__name__)
@@ -131,6 +132,13 @@ async def generate_node(state: State) -> dict[str, Any]:
     """
     LangGraph node that generates an SLAQL query from the input question.
     On retries it also incorporates reflection feedback.
+
+    Demo / offline mode:
+    --------------------
+    If OPENROUTER_API_KEY is not set, the node falls back to the reference
+    query stored in data/demo/queries/. This allows the full pipeline to be
+    exercised without an API key. Remove or comment out the fallback block
+    when you have a real key and want live LLM generation.
     """
     logger.info(
         "Generate node started (suffix=%s, retry=%s)",
@@ -138,32 +146,58 @@ async def generate_node(state: State) -> dict[str, Any]:
         state.retry_count,
     )
 
+    question = state.question or state.question_en
+    if not question:
+        question = load_question(state.suffix)
+
+    # ------------------------------------------------------------------
+    # DEMO FALLBACK (no API key)
+    # Comment out this block once you set OPENROUTER_API_KEY and want
+    # real LLM generation.
+    # ------------------------------------------------------------------
+    if not has_api_key():
+        logger.warning(
+            "OPENROUTER_API_KEY not found → using reference query as demo fallback "
+            "(suffix=%s). Set the key in .env to enable live LLM generation.",
+            state.suffix,
+        )
+        ref = load_reference_query(state.suffix)
+        if ref:
+            return {
+                "pql_query": ref,
+                "question": question,
+                "error": None,
+                "has_error": False,
+            }
+        # If no reference exists, still return a minimal valid query so the
+        # rest of the pipeline can run.
+        return {
+            "pql_query": 'from last 24h\n| where severity == "high"\n| stats count() by event_type',
+            "question": question,
+            "error": None,
+            "has_error": False,
+        }
+    # ------------------------------------------------------------------
+
     try:
-        question = state.question or state.question_en
-        if not question:
-            question = load_question(state.suffix)
-
         generator = QueryGenerator()
-
         pql_query = generator.generate(
             question=question,
             exclude_suffix=state.suffix,
             reflection_feedback=state.reflection_feedback,
         )
-
         return {
             "pql_query": pql_query,
             "question": question,
             "error": None,
             "has_error": False,
         }
-
     except Exception as e:
         error_msg = f"Query generation failed: {e}"
         logger.error(error_msg)
         return {
             "pql_query": state.pql_query or "",
-            "question": state.question or load_question(state.suffix),
+            "question": question,
             "error": error_msg,
             "has_error": True,
         }
