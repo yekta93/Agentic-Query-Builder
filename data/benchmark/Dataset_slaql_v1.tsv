@@ -1,1 +1,12 @@
-see_file
+suffix	question_en	query_slaql
+1	Count failed authentication events in the last hour, grouped by action and user, sorted by count descending	from last 1h | where action == "blocked" | stats count() by action, user | sort count desc
+2	List source IPs by number of allowed connections in the last 24 hours, sorted descending	from last 24h | where action == "allowed" | stats count() by source_ip | sort count desc
+3	Find source and destination IP pairs whose total outbound bytes exceed 1,000,000 in the last 24 hours, sorted by volume	from last 24h | stats sum(bytes_out) by source_ip,dest_ip | where sum > 1000000 | sort sum desc
+4	Count executions of lsass.exe, svchost.exe, or explorer.exe for known users (not unknown) in the last 24 hours, by user and process	from last 24h | where (process == "lsass.exe" or process == "svchost.exe" or process == "explorer.exe") and user != "unknown" | stats count() by user, process | sort count desc
+5	Find non-system users with privileged logon events (rule 4672) in the last 24 hours, sorted by count	from last 24h | where rule_name == "4672" and user != "SYSTEM" and user != "LOCAL SERVICE" and user != "NETWORK SERVICE" | stats count() by user | sort count desc
+6	Find users and source IPs with more than 50 events in the last 24 hours	from last 24h | stats count() by user,source_ip | where count > 50 | sort count desc
+7	Find source IPs and destination ports with more than 100 connections in the last 24 hours	from last 24h | stats count() by source_ip,dest_port | where count > 100 | sort count desc
+8	Find users with more than 10 connections to the same destination IP and port in the last 24 hours	from last 24h | stats count() by user,dest_ip,dest_port | where count > 10 | sort count desc
+9	Count blocked network sessions by user and destination IP in the last 24 hours	from last 24h | where action == "blocked" | stats count() by user, dest_ip | sort count desc
+10	Count authentication attempts for users other than root or empty username, by user, source IP, and destination IP in the last 24 hours	from last 24h | where user != "root" and user != "" | stats count() by user, source_ip, dest_ip | sort count desc
+# ... full 104 rows: copy Dataset_slaql_v1.tsv from artifacts/benchmark/ (see README.md)
