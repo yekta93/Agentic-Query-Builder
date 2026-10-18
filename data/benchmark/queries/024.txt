@@ -1,0 +1,5 @@
+from last 24h
+| where action == "allowed"
+| stats count() by user
+| where count > 10
+| sort count desc

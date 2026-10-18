@@ -1,0 +1,5 @@
+from last 24h
+| where dest_port in (22, 3389, 1433, 3306, 8080)
+| stats count() by source_ip, dest_port
+| where count > 10
+| sort count desc

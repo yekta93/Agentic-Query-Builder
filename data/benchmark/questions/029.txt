@@ -1,0 +1,1 @@
+Analyze process events under /etc or /var paths in the last 24 hours

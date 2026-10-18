@@ -1,0 +1,1 @@
+Analyze events excluding dest_ip 192.168.0.1, grouped by source_ip and dest_ip, keeping groups with count > 100

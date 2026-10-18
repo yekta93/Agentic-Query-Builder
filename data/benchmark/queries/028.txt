@@ -1,0 +1,5 @@
+from last 24h
+| where severity in ("high", "critical")
+| stats count() by user
+| where count > 5
+| sort count desc

@@ -1,0 +1,1 @@
+Find source IPs with more than 10 connections to common admin ports in the last 24 hours
