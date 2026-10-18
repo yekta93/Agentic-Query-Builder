@@ -1,0 +1,4 @@
+from last 1h
+| where action == "blocked"
+| stats count() by action, user
+| sort count desc

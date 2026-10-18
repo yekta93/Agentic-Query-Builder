@@ -1,0 +1,1 @@
+Count executions of lsass.exe, svchost.exe, or explorer.exe for known users (not unknown) in the last 24 hours, by user and process

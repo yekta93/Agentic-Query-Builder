@@ -1,0 +1,4 @@
+from last 24h
+| where rule_name == "4672" and user != "SYSTEM" and user != "LOCAL SERVICE" and user != "NETWORK SERVICE"
+| stats count() by user
+| sort count desc

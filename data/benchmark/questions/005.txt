@@ -1,0 +1,1 @@
+Find non-system users with privileged logon events (rule 4672) in the last 24 hours, sorted by count
