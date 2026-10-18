@@ -1,0 +1,3 @@
+from last 6h
+| where event_type == "firewall" and severity == "critical" and source_ip like "10.0*"
+| fields timestamp, source_ip, dest_ip, action, rule_name

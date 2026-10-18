@@ -1,0 +1,4 @@
+from last 7d
+| where event_type == "malware"
+| stats sum(bytes_out) by hostname
+| sort sum desc

@@ -1,0 +1,3 @@
+from 2024-06-01 to 2024-06-02
+| where process like "*powershell*" and severity in ("high", "critical")
+| fields timestamp, user, hostname, process, rule_name

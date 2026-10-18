@@ -1,0 +1,3 @@
+from last 1h
+| where action == "blocked" and country != "IR"
+| timeseries count() by event_type

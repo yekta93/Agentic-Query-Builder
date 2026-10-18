@@ -1,0 +1,1 @@
+List all processes that contain 'powershell' with high or critical severity between June 1 and June 2 2024

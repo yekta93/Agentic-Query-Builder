@@ -1,0 +1,1 @@
+Show critical firewall events from the last 6 hours where the source IP starts with 10.0
