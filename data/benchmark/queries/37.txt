@@ -1,0 +1,5 @@
+from last 24h
+| where country != "IR"
+| stats count() by dest_ip
+| where count > 500
+| sort count desc

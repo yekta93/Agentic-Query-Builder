@@ -1,0 +1,5 @@
+from last 24h
+| where rule_name == "4625" and hostname == "FROTHLY" and action == "blocked"
+| stats count() by source_ip
+| where count >= 5
+| sort count desc

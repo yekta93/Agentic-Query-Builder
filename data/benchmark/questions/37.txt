@@ -1,0 +1,1 @@
+Find destination IPs outside private ranges with more than 500 events in the last 24 hours

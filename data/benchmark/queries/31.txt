@@ -1,0 +1,4 @@
+from last 24h
+| where process == "powershell.exe" or query like "*-EncodedCommand*" or query like "*-enc*" or query like "*DownloadString*" or query like "*DownloadFile*"
+| stats count() by hostname, user, process, query
+| sort count desc

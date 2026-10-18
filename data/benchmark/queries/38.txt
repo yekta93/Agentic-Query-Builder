@@ -1,0 +1,4 @@
+from last 24h
+| where process == "powershell.exe"
+| stats count() by process, query, dest_ip, user
+| sort count desc

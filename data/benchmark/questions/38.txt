@@ -1,0 +1,1 @@
+Analyze powershell.exe process events in the last 24 hours, grouped by process, query, dest_ip, user

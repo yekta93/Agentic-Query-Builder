@@ -1,0 +1,1 @@
+Find source IPs and users with remote logons (rule 4624) reaching more than 3 destination IPs in the last 24 hours
