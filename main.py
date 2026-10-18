@@ -9,10 +9,19 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
+
+load_dotenv()  # load .env before any Langfuse / LLM clients read env vars
+
 from src.graph import build_graph
 from src.state import State
 from src.config_loader import get_config, reset_config, count_candidates
 from utils.helper import list_demo_suffixes, load_question
+from utils.langfuse_client import (
+    build_invoke_config,
+    flush_langfuse,
+    is_langfuse_enabled,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -114,13 +123,33 @@ def save_structured_results(final_state: Any, suffix_id: int, out_dir: Path) -> 
     logger.info("Saved combined result → %s", path)
 
 
-async def process_single(graph, suffix: int, out_dir: Path) -> None:
-    """Run the full pipeline for a single example."""
+async def process_single(
+    graph,
+    suffix: int,
+    out_dir: Path,
+    candidate_index: int = 0,
+) -> None:
+    """Run the full pipeline for a single example (with optional Langfuse tracing)."""
     question = load_question(suffix)
     logger.info("Processing suffix=%s | question=%s", suffix, question[:80])
 
     initial_state = State(suffix=suffix, question=question, pql_query="")
-    final_state = await graph.ainvoke(initial_state)
+
+    # Langfuse: one session per (candidate, suffix) so each run is a clear trace
+    invoke_config = build_invoke_config(
+        suffix=suffix,
+        candidate_index=candidate_index,
+        extra_tags=["pipeline"],
+    )
+    if invoke_config:
+        logger.info("Langfuse tracing enabled for suffix=%s", suffix)
+
+    final_state = await graph.ainvoke(initial_state, config=invoke_config)
+
+    # Flush traces so they appear in the Langfuse UI before the process exits
+    handlers = invoke_config.get("callbacks") or []
+    for h in handlers:
+        flush_langfuse(h)
 
     save_structured_results(final_state, suffix, out_dir)
 
@@ -145,6 +174,7 @@ async def run_for_candidate(args: argparse.Namespace, candidate_index: int) -> N
         "reflect": config.graph_features.reflect,
         "syntax_checker": config.graph_features.syntax_checker,
         "translate": config.graph_features.translate,
+        "langfuse_enabled": is_langfuse_enabled(),
     }
     with open(out_path / "metadata.json", "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2, ensure_ascii=False)
@@ -157,6 +187,11 @@ async def run_for_candidate(args: argparse.Namespace, candidate_index: int) -> N
         config.graph_features.prompt_config.few_shots,
         config.graph_features.syntax_checker,
         config.graph_features.reflect,
+    )
+    logger.info(
+        "[Candidate %d] Langfuse tracing: %s",
+        candidate_index,
+        "ON" if is_langfuse_enabled() else "OFF",
     )
     logger.info("[Candidate %d] Output → %s", candidate_index, out_path)
 
@@ -171,7 +206,7 @@ async def run_for_candidate(args: argparse.Namespace, candidate_index: int) -> N
 
     for suffix in suffixes:
         try:
-            await process_single(graph, suffix, out_path)
+            await process_single(graph, suffix, out_path, candidate_index=candidate_index)
         except Exception as e:
             logger.error(
                 "[Candidate %d] Failed on suffix %s: %s", candidate_index, suffix, e
