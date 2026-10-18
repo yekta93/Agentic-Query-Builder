@@ -1,0 +1,1 @@
+Analyze process events for exe/dll files in the last 24 hours, grouped by process, hostname, user

@@ -1,0 +1,1 @@
+Analyze traffic volume (bytes) over the last 24 hours, grouped by source_ip, keeping groups where sum > 104857600, sorted by the main metric

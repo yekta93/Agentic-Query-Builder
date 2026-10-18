@@ -1,0 +1,1 @@
+Analyze security log events over the last 24 hours, filtered by dest_ip == "1.127.49.124", grouped by source_ip, sorted by the main metric

@@ -1,0 +1,3 @@
+from last 24h
+| stats count() by process, user, hostname
+| sort count desc

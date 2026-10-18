@@ -1,0 +1,1 @@
+Analyze security log events over the last 24 hours, grouped by process, user, hostname, sorted by the main metric

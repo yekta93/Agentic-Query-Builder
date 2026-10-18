@@ -1,0 +1,1 @@
+Analyze SSH destination activity (port 22) in the last 24 hours, keeping groups with count >= 10

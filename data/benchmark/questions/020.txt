@@ -1,0 +1,1 @@
+Analyze blocked logons excluding root/admin in the last 24 hours, grouped by user and source_ip, keeping groups with count >= 5
