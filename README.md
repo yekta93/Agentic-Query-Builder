@@ -248,11 +248,6 @@ candidates:
 - Fully synthetic demo data (no sensitive information)
 - Works offline out of the box for demos and CI
 
----
-
-## License
-
-MIT
 
 ---
 
