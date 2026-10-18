@@ -27,9 +27,9 @@ This project was designed as a real-world solution for converting security-analy
 
 ## Architecture
 
-![LangGraph Architecture](docs/graph.png)
+![LangGraph Architecture](https://raw.githubusercontent.com/yekta93/Generate-Query-Language/main/src/graph.png)
 
-*LangGraph multi-agent pipeline: Generate → Syntax Check → Reflect (retry) → Judge → Execute*
+*LangGraph multi-agent pipeline: Generate → Syntax Check → Reflect (retry loop) → Judge → Execute*
 
 ```text
                   ┌─────────────┐
@@ -260,8 +260,6 @@ candidates:
 │   ├── questions/
 │   ├── queries/
 │   └── details/
-├── docs/
-│   └── graph.png            # Architecture diagram
 ├── artifacts/               # SLAQL syntax & field references
 └── tests/
 ```
