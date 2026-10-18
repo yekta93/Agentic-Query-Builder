@@ -1,6 +1,1 @@
-suffix	question_en	query_slaql
-1	Count failed authentication events in the last hour, grouped by action and user, sorted by count descending	from last 1h | where action == "blocked" | stats count() by action, user | sort count desc
-2	List source IPs by number of allowed connections in the last 24 hours, sorted descending	from last 24h | where action == "allowed" | stats count() by source_ip | sort count desc
-3	Find source and destination IP pairs whose total outbound bytes exceed 1,000,000 in the last 24 hours, sorted by volume	from last 24h | stats sum(bytes_out) by source_ip,dest_ip | where sum > 1000000 | sort sum desc
-4	Count executions of lsass.exe, svchost.exe, or explorer.exe for known users (not unknown) in the last 24 hours, by user and process	from last 24h | where (process == "lsass.exe" or process == "svchost.exe" or process == "explorer.exe") and user != "unknown" | stats count() by user, process | sort count desc
-5	Find non-system users with privileged logon events (rule 4672) in the last 24 hours, sorted by count	from last 24h | where rule_name == "4672" and user != "SYSTEM" and user != "LOCAL SERVICE" and user != "NETWORK SERVICE" | stats count() by user | sort count desc
+see_file
