@@ -95,6 +95,49 @@ Each `(candidate, suffix)` becomes one **session** in Langfuse. Inside the trace
 
 If keys are missing, tracing is disabled automatically — demo mode still works offline.
 
+### Sample Langfuse screenshots
+
+Place the PNGs under `data/langfuse_imgs/` (see instructions below), then they will render here:
+
+| Overview | Trace detail |
+|----------|--------------|
+| ![Trace overview](data/langfuse_imgs/trace_overview.png) | ![Trace detail 1](data/langfuse_imgs/trace_detail_1.png) |
+
+![Trace detail 2](data/langfuse_imgs/trace_detail_2.png)
+![Trace detail 3](data/langfuse_imgs/trace_detail_3.png)
+![Trace detail 4](data/langfuse_imgs/trace_detail_4.png)
+![Trace detail 5](data/langfuse_imgs/trace_detail_5.png)
+
+**How to add the image files** (one-time, from your local copy of the original project):
+
+```bash
+mkdir -p data/langfuse_imgs
+
+# From the old project's data/langfuse_imgs folder:
+cp /path/to/Generate-Query-Language/data/langfuse_imgs/image.png \
+   data/langfuse_imgs/trace_overview.png
+cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (1).png" \
+   data/langfuse_imgs/trace_detail_1.png
+cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (2).png" \
+   data/langfuse_imgs/trace_detail_2.png
+cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (3).png" \
+   data/langfuse_imgs/trace_detail_3.png
+cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (4).png" \
+   data/langfuse_imgs/trace_detail_4.png
+cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (5).png" \
+   data/langfuse_imgs/trace_detail_5.png
+
+git add data/langfuse_imgs/*.png
+git commit -m "Add Langfuse screenshots"
+git push
+```
+
+Or run the helper script (needs the old repo reachable):
+
+```bash
+python scripts/extract_langfuse_imgs.py
+```
+
 ---
 
 ## SIEM Log Analytics Query Language (SLAQL)
@@ -270,6 +313,9 @@ candidates:
 ├── data/demo/               # 10 synthetic clean examples
 ├── data/output/             # Run outputs (demo_candidate_0 committed)
 ├── data/execute_result/     # Mocked execute results for all demos
+├── data/langfuse_imgs/      # Langfuse UI screenshots
+├── scripts/
+│   └── extract_langfuse_imgs.py
 ├── artifacts/               # SLAQL syntax & field references
 └── tests/
 ```
