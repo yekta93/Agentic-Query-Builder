@@ -1,0 +1,10 @@
+{
+  "suffix": 8,
+  "question": "Find users who had more than 5 failed login attempts in the last 6 hours",
+  "pql_query": "from last 6h\n| where event_type == \"login\" and action == \"blocked\"\n| stats count() by user\n| where count > 5\n| sort count desc",
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "reflection_feedback": null
+}

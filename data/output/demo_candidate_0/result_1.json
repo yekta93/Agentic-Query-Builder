@@ -1,0 +1,26 @@
+{
+  "suffix": 1,
+  "question": "Show me all high severity login events from the last 24 hours grouped by user and source IP",
+  "pql_query": "from last 24h\n| where event_type == \"login\" and severity == \"high\"\n| stats count() by user, source_ip\n| sort count desc",
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "evaluation_result": {
+    "score": 0.95,
+    "valid_syntax": true,
+    "comments": "Syntactically valid; High overlap with reference query (demo mode)"
+  },
+  "execution_result": {
+    "status": "success",
+    "rows_returned": 13,
+    "execution_time_ms": 127,
+    "sample_rows": [
+      {"user": "alice", "source_ip": "10.0.1.15", "count": 12},
+      {"user": "bob", "source_ip": "192.168.3.22", "count": 8},
+      {"user": "carol", "source_ip": "10.0.4.9", "count": 5}
+    ],
+    "note": "Mocked execution result for demonstration purposes."
+  },
+  "reflection_feedback": null
+}

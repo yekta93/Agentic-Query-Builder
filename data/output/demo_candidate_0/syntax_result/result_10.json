@@ -1,0 +1,10 @@
+{
+  "suffix": 10,
+  "question": "List all DNS queries from the last 2 hours that contain the word 'malware' or 'phishing' in the query field",
+  "pql_query": "from last 2h\n| where event_type == \"dns\" and (query like \"*malware*\" or query like \"*phishing*\")\n| fields timestamp, source_ip, query, hostname",
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "reflection_feedback": null
+}

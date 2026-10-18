@@ -1,0 +1,10 @@
+{
+  "suffix": 6,
+  "question": "Count the number of critical malware events per hostname in the last 48 hours and show the top 10",
+  "pql_query": "from last 48h\n| where event_type == \"malware\" and severity == \"critical\"\n| stats count() by hostname\n| sort count desc\n| limit 10",
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "reflection_feedback": null
+}

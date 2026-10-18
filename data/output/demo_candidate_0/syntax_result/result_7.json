@@ -1,0 +1,10 @@
+{
+  "suffix": 7,
+  "question": "Show all blocked firewall events from the last 12 hours where the destination port is 22 or 3389",
+  "pql_query": "from last 12h\n| where event_type == \"firewall\" and action == \"blocked\" and dest_port in (22, 3389)\n| fields timestamp, source_ip, dest_ip, dest_port, rule_name, user",
+  "syntax_check_result": {"valid": true, "message": "OK"},
+  "has_error": false,
+  "error": null,
+  "retry_count": 0,
+  "reflection_feedback": null
+}
