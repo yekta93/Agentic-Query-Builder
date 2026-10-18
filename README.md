@@ -21,8 +21,7 @@ It demonstrates modern LLM orchestration patterns:
 - **LLM-as-Judge** evaluation (with strong heuristic fallback)
 - **Langfuse tracing** for every graph node (optional)
 - Configurable pipeline stages (easy ablation studies)
-
-This project was designed as a real-world solution for converting security-analyst questions into structured SIEM log analysis queries.
+- **104-example SLAQL benchmark** + model/config evaluation study
 
 ---
 
@@ -45,6 +44,32 @@ This project was designed as a real-world solution for converting security-analy
 
 ---
 
+## Evaluation Results
+
+We evaluated **multiple open models** across **pipeline ablations** (Base, FewShot, Reflect, SyntaxCheck, Translate, and combinations) on a **104-query SLAQL benchmark**.
+
+Reference baseline: **GPT-4.1-mini ≈ 60.3% accuracy**.
+
+### Highlights
+
+| Model | Strong configuration | Accuracy (approx.) |
+|-------|----------------------|--------------------|
+| qwen3-30b-a3b-instruct-2507 | Refl+Trans+FewShot | **~80%** |
+| llama-4-maverick | SyntaxCheck+Trans+FewShot | **~70%** |
+| gemma-4-31b-it | Base / SyntaxCheck+Refl | **~60%** (matches baseline) |
+| gemma-4-26b-a4b-it | Trans+FewShot | **~53%** |
+
+![Accuracy by model](docs/figures/accuracy_by_model.jpg)
+
+![Cost by model](docs/figures/cost_by_model.jpg)
+
+**Takeaways:** reflection + few-shot can push mid-size models above a strong closed baseline; full multi-agent loops trade higher cost for better accuracy on hard items.
+
+Full write-up: **[docs/evaluation.md](docs/evaluation.md)**  
+Benchmark data: **[data/benchmark/](data/benchmark/)** (104 NL → SLAQL pairs)
+
+---
+
 ## Demo Mode (no API key required)
 
 The repository ships with a fully functional **offline demo mode**:
@@ -54,15 +79,10 @@ The repository ships with a fully functional **offline demo mode**:
 - Reflect uses a deterministic feedback message.
 - Execute always returns a realistic mocked result.
 
-This lets you run the complete graph, inspect intermediate state, and generate output files without any external API.
-
 ```bash
-# Works out of the box (no .env needed)
 python main.py --suffix 1
 python main.py --suffix all
 ```
-
-When you later add a real key, the same commands switch to live LLM generation automatically.
 
 ---
 
@@ -71,13 +91,8 @@ When you later add a real key, the same commands switch to live LLM generation a
 Every LangGraph node can be traced with [Langfuse](https://langfuse.com).
 
 ```bash
-# Install optional dependency
-pip install langfuse
-# or
-pip install -e ".[observability]"
+pip install langfuse   # or: pip install -e ".[observability]"
 ```
-
-Add keys to `.env`:
 
 ```bash
 LANGFUSE_PUBLIC_KEY=pk-lf-...
@@ -85,86 +100,30 @@ LANGFUSE_SECRET_KEY=sk-lf-...
 LANGFUSE_HOST=https://cloud.langfuse.com
 ```
 
-Then run as usual:
-
-```bash
-python main.py --suffix 1
-```
-
-Each `(candidate, suffix)` becomes one **session** in Langfuse. Inside the trace you will see spans for `generate`, `syntax_check`, `reflect`, `judge`, and `execute`, including LLM calls, latency, and errors.
-
-If keys are missing, tracing is disabled automatically — demo mode still works offline.
-
-### Sample Langfuse screenshots
-
-Place the PNGs under `data/langfuse_imgs/` (see instructions below), then they will render here:
-
-| Overview | Trace detail |
-|----------|--------------|
-| ![Trace overview](data/langfuse_imgs/trace_overview.png) | ![Trace detail 1](data/langfuse_imgs/trace_detail_1.png) |
-
-![Trace detail 2](data/langfuse_imgs/trace_detail_2.png)
-![Trace detail 3](data/langfuse_imgs/trace_detail_3.png)
-![Trace detail 4](data/langfuse_imgs/trace_detail_4.png)
-![Trace detail 5](data/langfuse_imgs/trace_detail_5.png)
-
-**How to add the image files** (one-time, from your local copy of the original project):
-
-```bash
-mkdir -p data/langfuse_imgs
-
-# From the old project's data/langfuse_imgs folder:
-cp /path/to/Generate-Query-Language/data/langfuse_imgs/image.png \
-   data/langfuse_imgs/trace_overview.png
-cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (1).png" \
-   data/langfuse_imgs/trace_detail_1.png
-cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (2).png" \
-   data/langfuse_imgs/trace_detail_2.png
-cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (3).png" \
-   data/langfuse_imgs/trace_detail_3.png
-cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (4).png" \
-   data/langfuse_imgs/trace_detail_4.png
-cp "/path/to/Generate-Query-Language/data/langfuse_imgs/image (5).png" \
-   data/langfuse_imgs/trace_detail_5.png
-
-git add data/langfuse_imgs/*.png
-git commit -m "Add Langfuse screenshots"
-git push
-```
-
-Or run the helper script (needs the old repo reachable):
-
-```bash
-python scripts/extract_langfuse_imgs.py
-```
+Each `(candidate, suffix)` becomes one **session** in Langfuse with spans for generate / syntax_check / reflect / judge / execute.
 
 ---
 
 ## SIEM Log Analytics Query Language (SLAQL)
 
-SLAQL is a pipeline-oriented domain-specific language for security log analysis.
-
 ### Core Fields
 
-| Field         | Type     | Description                          |
-|---------------|----------|--------------------------------------|
-| `timestamp`   | datetime | Event occurrence time                |
-| `source_ip`   | string   | Source IP address                    |
-| `dest_ip`     | string   | Destination IP address               |
-| `dest_port`   | int      | Destination port                     |
-| `user`        | string   | Username                             |
-| `event_type`  | string   | `login`, `malware`, `firewall`, `dns`, … |
-| `severity`   | string   | `low` / `medium` / `high` / `critical` |
-| `action`      | string   | `allowed` / `blocked` / `quarantined` |
-| `hostname`    | string   | Host name                            |
-| `process`     | string   | Process name                         |
-| `bytes_in`    | int      | Inbound bytes                        |
-| `bytes_out`   | int      | Outbound bytes                       |
-| `rule_name`   | string   | Security rule name                   |
-| `country`     | string   | Source country                       |
-| `query`       | string   | DNS query / request content          |
+| Field | Type | Description |
+|-------|------|-------------|
+| `timestamp` | datetime | Event time |
+| `source_ip` / `dest_ip` | string | IPs |
+| `dest_port` | int | Destination port |
+| `user` | string | Username |
+| `event_type` | string | login, malware, firewall, dns, … |
+| `severity` | string | low / medium / high / critical |
+| `action` | string | allowed / blocked / quarantined |
+| `hostname` / `process` | string | Host / process |
+| `bytes_in` / `bytes_out` | int | Traffic volume |
+| `rule_name` | string | Security rule |
+| `country` | string | Source country |
+| `query` | string | DNS / request content |
 
-### Example Queries
+### Example
 
 ```text
 from last 24h
@@ -173,165 +132,56 @@ from last 24h
 | sort count desc
 ```
 
-```text
-from last 1h
-| where action == "blocked" and country != "IR"
-| timeseries count() by event_type
-```
-
-```text
-from 2024-06-01 to 2024-06-02
-| where process like "*powershell*" and severity in ("high", "critical")
-| fields timestamp, user, hostname, process, rule_name
-```
-
----
-
-## Sample Run Output
-
-```bash
-$ python main.py --suffix 1
-```
-
-```json
-{
-  "suffix": 1,
-  "question": "Show me all high severity login events from the last 24 hours grouped by user and source IP",
-  "pql_query": "from last 24h\n| where event_type == \"login\" and severity == \"high\"\n| stats count() by user, source_ip\n| sort count desc",
-  "has_error": false,
-  "error": null,
-  "retry_count": 0,
-  "syntax_check_result": {
-    "valid": true,
-    "message": "OK"
-  },
-  "evaluation_result": {
-    "score": 0.95,
-    "valid_syntax": true,
-    "comments": "Syntactically valid; High overlap with reference (92%)"
-  },
-  "execution_result": {
-    "status": "success",
-    "rows_returned": 17,
-    "execution_time_ms": 142,
-    "sample_rows": [
-      {"user": "alice", "source_ip": "10.0.1.15", "count": 7},
-      {"user": "bob", "source_ip": "192.168.3.22", "count": 5}
-    ],
-    "note": "Mocked execution result for demonstration purposes."
-  }
-}
-```
-
 ---
 
 ## Quick Start
 
-### 1. Clone & Install
-
 ```bash
 git clone https://github.com/yekta93/Agentic-Query-Builder.git
 cd Agentic-Query-Builder
-
-# Using uv (recommended)
-uv sync
-
-# Or with pip
 pip install -e .
+cp .env.example .env   # optional API keys
 
-# Optional: Langfuse
-pip install -e ".[observability]"
-```
-
-### 2. (Optional) Configure Environment for live LLM
-
-```bash
-cp .env.example .env
-# Edit .env and set your OPENROUTER_API_KEY (and optionally Langfuse keys)
-```
-
-### 3. Run
-
-```bash
-# Single example (works offline)
 python main.py --suffix 1
-
-# Full demo set (10 examples)
-python main.py --suffix all
-
-# Specific configuration candidate
-python main.py --candidate-index 0 --suffix 1
-
-# Run every candidate defined in config.yaml
-python main.py --all --suffix 1
+python main.py --suffix all --candidate-index 0
 ```
 
 ---
 
 ## Configuration
 
-Pipeline behavior is controlled via `config.yaml`. You can define multiple **candidates** (different combinations of model + enabled stages) and compare them easily.
-
-```yaml
-candidates:
-  - model: "google/gemma-2-27b-it"
-    prompt_config: ["few-shots"]
-    syntax_checker: true
-    reflect: true
-    translate: false
-
-  - model: "google/gemma-2-27b-it"
-    prompt_config: []
-    syntax_checker: true
-    reflect: true
-    translate: false
-
-  - model: "google/gemma-2-27b-it"
-    prompt_config: []
-    syntax_checker: false
-    reflect: false
-    translate: false
-```
+Pipeline ablations are defined in `config.yaml` as **candidates** (model + enabled stages) for fair comparison.
 
 ---
 
 ## Project Structure
 
 ```text
-├── main.py                  # CLI entry point (+ Langfuse config)
-├── config.yaml              # Pipeline & model configuration
-├── src/
-│   ├── graph.py             # LangGraph workflow definition
-│   ├── state.py             # Shared state schema
-│   ├── config_loader.py     # Config management
-│   └── query_builder/       # Individual agents
-├── utils/
-│   ├── langfuse_client.py   # Optional Langfuse CallbackHandler
-│   ├── llm_clients.py
-│   ├── helper.py
-│   └── schemas.py
-├── data/demo/               # 10 synthetic clean examples
-├── data/output/             # Run outputs (demo_candidate_0 committed)
-├── data/execute_result/     # Mocked execute results for all demos
-├── data/langfuse_imgs/      # Langfuse UI screenshots
-├── scripts/
-│   └── extract_langfuse_imgs.py
-├── artifacts/               # SLAQL syntax & field references
-└── tests/
+├── main.py
+├── config.yaml
+├── src/                    # LangGraph + agents
+├── utils/                  # LLM client, Langfuse, helpers
+├── data/
+│   ├── demo/               # 10 quick demo examples
+│   ├── benchmark/          # 104-example SLAQL evaluation set
+│   ├── output/             # run artifacts
+│   └── execute_result/
+├── docs/
+│   ├── evaluation.md       # full evaluation write-up
+│   └── figures/            # accuracy & cost charts
+└── artifacts/              # SLAQL syntax & field guides
 ```
 
 ---
 
 ## Key Features for Portfolio
 
-- **LangGraph multi-agent orchestration** with conditional edges and retry loops
-- Configurable agent pipeline (ablation-friendly)
-- Few-shot prompting with leave-one-out support
-- Self-reflection that feeds guidance back into generation
-- LLM-as-Judge + robust heuristic fallback
-- **Langfuse observability** for every graph node
-- Fully synthetic demo data (no sensitive information)
-- Works offline out of the box for demos and CI
+- LangGraph multi-agent orchestration with reflection loops
+- Configurable ablations (few-shot, syntax check, reflect, translate)
+- 104-query SLAQL benchmark adapted for public release
+- Model × configuration accuracy and cost study
+- Langfuse observability
+- Offline demo mode (no API key required)
 
 ---
 
